@@ -3,6 +3,8 @@
 A small lightweight application designed to scrape some basic metrics about work performance.
 Designed to "lighten the load" of manually keeping track of all the work that you have done.
 
+:warning: Please note this is an early WIP and is not a completed project.
+
 
 ## Requirements
 - systemd
@@ -66,13 +68,13 @@ path `~/.config/prodex/prodex.toml` after installation.
 
 ### Base configurations
 - Required Properties
-    - installation_path
+    - installation_path:
         Generally, this shouldn't be modified. The only time it should be
         modified is when you are installing in a different location to that
         in the Makefile.
-    - log_level
+    - log_level:
         Any of ["debug", "info", "warn", "error"]
-    - max_noops
+    - max_noops:
         This determines how many noops can happen before the scraper stops.
         It is intended to stop the scraper running indefinitely.
 
@@ -85,15 +87,15 @@ Specific configurations are detailed under each available scraper below.
         - Retrieves and stores every Jira issue where you are `reporter`
         - Retrieves and stores every Jira issue where you are `creator`
     - Required Properties
-        - atlassian_token
+        - atlassian_token:
             The token for your Atlassian instance.
             Can be generated at https://id.atlassian.com/manage-profile/security/api-tokens
-        - atlassian_user
+        - atlassian_user:
             Your username/email for the Atlassian instance.
-        - atlassian_domain
+        - atlassian_domain:
             The domain for the Atlassian instance.
             Note it must begin with the scheme of the URL (most probably https://)
-        - pagination_size
+        - pagination_size:
             The number of documents to retrieve in a single API call.
     - Example
         ```toml
@@ -106,12 +108,12 @@ Specific configurations are detailed under each available scraper below.
 - Confluence (not working currently)
     - What does it do?
     - Required Properties
-        - atlassian_token
+        - atlassian_token:
             The token for your Atlassian instance.
             Can be generated at https://id.atlassian.com/manage-profile/security/api-tokens
-        - atlassian_user
+        - atlassian_user:
             Your username/email for the Atlassian instance.
-        - atlassian_domain
+        - atlassian_domain:
             The domain for the Atlassian instance.
             Note it must begin with the scheme of the URL (most probably https://)
     - Example
@@ -124,9 +126,9 @@ Specific configurations are detailed under each available scraper below.
 - Confluence (not working currently)
     - What does it do?
     - Required Properties
-        - github_token
+        - github_token:
             TODO
-        - github_url
+        - github_url:
             TODO
     - Example
         ```toml
@@ -136,4 +138,4 @@ Specific configurations are detailed under each available scraper below.
         ```
 
 ### Contributing
-TODO
+This is an early WIP, I need to get some more completed first and plan this out some more.
