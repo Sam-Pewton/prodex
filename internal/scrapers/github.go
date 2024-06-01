@@ -16,21 +16,26 @@ type gitRepo struct {
 }
 
 type gitScraper struct {
-	url     string
 	client  http.Client
 	headers map[string]string
+	config  map[string]any
 }
 
-func NewGitScraper(url string, headers map[string]string) *gitScraper {
+func NewGitScraper(config map[string]any) *gitScraper {
+	headers := map[string]string{
+		"Accept":               "application/vnd.github+json",
+		"Authorization":        fmt.Sprintf("Bearer %s", config["github_token"]),
+		"X-GitHub-Api-Version": "2022-11-28",
+	}
 	return &gitScraper{
-		url,
 		http.Client{Timeout: time.Duration(1) * time.Second},
 		headers,
+		config,
 	}
 }
 
 func (s *gitScraper) BuildGetRequest(url_suffix string) (*http.Request, error) {
-	req, err := http.NewRequest("GET", s.url+url_suffix, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", s.config["github_url"], url_suffix), nil)
 	if err != nil {
 		logging.Error("error %s", err)
 	}
@@ -54,7 +59,7 @@ func (s *gitScraper) ExecuteRequest(request *http.Request) (*http.Response, erro
 	return resp, nil
 }
 
-func (s *gitScraper) Scrape(c chan []byte) error {
+func (s *gitScraper) Scrape(c chan<- DBExecution) error {
 	// 1. Check that we can access the URL via the /meta endpoint
 	req, err := s.BuildGetRequest("")
 	if err != nil {
@@ -82,8 +87,8 @@ func (s *gitScraper) Scrape(c chan []byte) error {
 	}
 
 	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
+	_, err = io.ReadAll(res.Body)
 
-	c <- body
+	// c <- body
 	return nil
 }

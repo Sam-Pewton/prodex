@@ -3,29 +3,32 @@ package scrapers
 import (
 	"errors"
 	"fmt"
-	"github.com/Sam-Pewton/prodex/internal/logging"
 	"io"
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/Sam-Pewton/prodex/internal/logging"
 )
 
 type confluenceScraper struct {
-	url     string
 	client  http.Client
 	headers map[string]string
+	config  map[string]any
 }
 
-func NewConfluenceScraper(url string, headers map[string]string) *confluenceScraper {
+func NewConfluenceScraper(config map[string]any) *confluenceScraper {
+	headers := map[string]string{
+		"Accept": "application/json",
+	}
 	return &confluenceScraper{
-		url,
 		http.Client{Timeout: time.Duration(1) * time.Second},
 		headers,
+		config,
 	}
 }
 
 func (s *confluenceScraper) BuildGetRequest(url_suffix string) (*http.Request, error) {
-	req, err := http.NewRequest("GET", s.url+url_suffix, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", s.config["atlassian_domain"], url_suffix), nil)
 	if err != nil {
 		logging.Error("error %s", err)
 	}
@@ -34,7 +37,7 @@ func (s *confluenceScraper) BuildGetRequest(url_suffix string) (*http.Request, e
 		req.Header.Add(k, v)
 	}
 
-	req.SetBasicAuth(os.Getenv("ATLASSIAN_USER"), os.Getenv("ATLASSIAN_TOKEN"))
+	req.SetBasicAuth(fmt.Sprintf("%s", s.config["atlassian_user"]), fmt.Sprintf("%s", s.config["atlassian_token"]))
 
 	return req, nil
 }
@@ -51,7 +54,7 @@ func (s *confluenceScraper) ExecuteRequest(request *http.Request) (*http.Respons
 	return resp, nil
 }
 
-func (s *confluenceScraper) Scrape(c chan<- []byte) error {
+func (s *confluenceScraper) Scrape(c chan<- DBExecution) error {
 	// 1. Check that we can access the URL via the /meta endpoint
 	req, err := s.BuildGetRequest("wiki/api/v2/spaces")
 	if err != nil {
@@ -67,8 +70,8 @@ func (s *confluenceScraper) Scrape(c chan<- []byte) error {
 
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	_, err = io.ReadAll(res.Body)
 
-	c <- body
+	//c <- body
 	return nil
 }

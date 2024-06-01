@@ -3,22 +3,30 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/Sam-Pewton/prodex/internal/config"
 	"github.com/Sam-Pewton/prodex/internal/logging"
 	"github.com/Sam-Pewton/prodex/internal/scrapers"
-	"os"
 )
 
 func runScraper(db *sql.DB) {
+	totalScrapers := len(config.ProdexConf.Scrapers)
+
+	// There are no scrapers to run.
+	if totalScrapers == 0 {
+		logging.Debug("There are no scrapers to run")
+		return
+	}
 
 	// Data channels
 	tasks := make(chan scrapers.DBExecution)
-	orchestrator := make(chan bool, 10)
+	orchestrator := make(chan bool, totalScrapers)
 	defer close(tasks)
 	defer close(orchestrator)
 
-	// go scrapeGitHub(tasks, orchestrator)
-	// go scrapeConfluence(tasks, orchestrator)
-	go scrapeJira(tasks, orchestrator)
+	// Start all scrapers
+	for k, v := range config.ProdexConf.Scrapers {
+		scrapers.MapToScraper(tasks, orchestrator, k, v)
+	}
 
 	totalDone := 0
 	scrapersFinished := false
@@ -46,67 +54,12 @@ func runScraper(db *sql.DB) {
 			noop++
 		}
 
-		if scrapersFinished && noop >= maxNoops {
+		if scrapersFinished && noop >= config.ProdexConf.MaxNoops {
 			break
 		}
+
+		if noop >= config.ProdexConf.MaxNoops {
+			logger.Error(fmt.Sprintf("scrapers stopped without finishing. expected %d, but only %d finished succesfully", totalScrapers, totalDone))
+		}
 	}
-}
-
-func scrapeGitHub(c chan []byte, orchestrator chan<- bool) {
-	headers := map[string]string{
-		"Accept":               "application/vnd.github+json",
-		"Authorization":        fmt.Sprintf("Bearer %s", os.Getenv("GH_TOKEN")),
-		"X-GitHub-Api-Version": "2022-11-28",
-	}
-
-	s := scrapers.NewGitScraper(
-		"https://api.github.com/",
-		headers,
-	)
-
-	// Run the scraper
-	logging.Debug("GitHub scraper starting")
-	s.Scrape(c)
-
-	// Signal to the main thread that this scraper has finished.
-	orchestrator <- true
-	logging.Debug("GitHub scraper finished")
-}
-
-func scrapeJira(c chan<- scrapers.DBExecution, orchestrator chan<- bool) {
-	headers := map[string]string{
-		"Accept": "application/json",
-	}
-
-	s := scrapers.NewJiraScraper(
-		os.Getenv("ATLASSIAN_DOMAIN"),
-		headers,
-	)
-
-	// Run the scraper
-	logging.Debug("Jira scraper starting")
-	s.Scrape(c)
-
-	// Signal to the main thread that this scraper has finished.
-	orchestrator <- true
-	logging.Debug("Jira scraper finished")
-}
-
-func scrapeConfluence(c chan<- []byte, orchestrator chan<- bool) {
-	headers := map[string]string{
-		"Accept": "application/json",
-	}
-
-	s := scrapers.NewConfluenceScraper(
-		os.Getenv("ATLASSIAN_DOMAIN"),
-		headers,
-	)
-
-	// Run the scraper
-	logging.Debug("Confluence scraper starting")
-	s.Scrape(c)
-
-	// Signal to the main thread that this scraper has finished.
-	orchestrator <- true
-	logging.Debug("Confluence scraper finished")
 }
