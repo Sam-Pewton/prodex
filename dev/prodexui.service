@@ -1,0 +1,10 @@
+[Unit]
+Description=prodexui
+
+[Service]
+Type=simple
+ExecStart=%h/etc/prodex/prodex -mode ui
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

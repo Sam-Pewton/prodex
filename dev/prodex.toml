@@ -1,0 +1,35 @@
+# TOML Configuration for Prodex
+
+############
+# REQIURED #
+############
+# Do not modify unless you installed without using the Makefile
+config_path = "/.config/prodex/"
+installation_path = "/etc/prodex/"
+
+############
+# SCRAPERS #
+############
+[scraper]
+
+# Definitions for all scrapers to run.
+#
+# Add a configuration for any scraper that you would like to run.
+# The following commented blocks are some examples for each
+# available scraper.
+# 
+# # Jira scraper(s)
+# [[scraper.jira]]
+# atlassian_token = "abcdefg"
+# atlassian_user = "your-email@email.email"
+# atlassian_domain = "your-atlassian-url.atlassian.net"
+# 
+# # Confluence scraper(s)
+# [[scraper.confluence]]
+# atlassian_token = "abcdefg"
+# atlassian_user = "your-email@email.email"
+# atlassian_domain = "your-atlassian-url.atlassian.net"
+# 
+# # GitHub scraper(s)
+# [[scraper.github]]
+# github_token = "hijklm"

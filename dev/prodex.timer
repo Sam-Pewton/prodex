@@ -1,0 +1,10 @@
+[Unit]
+Description=prodex
+Requires=prodex.service
+
+[Timer]
+Unit=prodex.service
+OnCalendar=*-*-* *:00:00
+
+[Install]
+WantedBy=timers.target
