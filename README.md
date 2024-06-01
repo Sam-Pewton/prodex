@@ -27,15 +27,14 @@ To uninstall, you can also run:
 make uninstall
 ```
 
-:warning: This will delete all configuration for the application and all scraped data. If you would
-like to retain your configuration and data, make sure it is backed up somewhere before running. I
-intend to fix this side effect later on once configurations are properly defined.
-
-
 ## Usage
 ### Scraper
 After installation, the scraper is set to run hourly. There should be no need to modify this.
 Any configuration changes made should be applied on the following run.
+
+#### Viewing the logs of the scraper
+```bash
+journalctl --user-unit prodex
 
 ### UI
 Currently, only a very basic web server is available on port `localhost:8642` that doesn't do a lot
@@ -64,33 +63,75 @@ Two modes are available for prodex.
 All scrapers are configured using the `prodex.toml` file. This file is located at the following
 path `~/.config/prodex/prodex.toml` after installation.
 
-Specific configurations are detailed under each available scraper below.
+### Base configurations
+- Required Properties
+    - installation_path
+        Generally, this shouldn't be modified. The only time it should be
+        modified is when you are installing in a different location to that
+        in the Makefile.
+    - log_level
+        Any of ["debug", "info", "warn", "error"]
+    - max_noops
+        This determines how many noops can happen before the scraper stops.
+        It is intended to stop the scraper running indefinitely.
 
+Specific configurations are detailed under each available scraper below.
 
 ### Available scrapers
 - Jira
+    - What does it do?
+        - Retrieves and stores every Jira issue where you are `assignee`
+        - Retrieves and stores every Jira issue where you are `reporter`
+        - Retrieves and stores every Jira issue where you are `creator`
     - Required Properties
         - atlassian_token
+            The token for your Atlassian instance.
+            Can be generated at https://id.atlassian.com/manage-profile/security/api-tokens
         - atlassian_user
+            Your username/email for the Atlassian instance.
         - atlassian_domain
+            The domain for the Atlassian instance.
+            Note it must begin with the scheme of the URL (most probably https://)
+        - pagination_size
+            The number of documents to retrieve in a single API call.
     - Example
         ```toml
-        [[scraper.jira]]
+        [[scrapers.jira]]
         atlassian_token = "abcdefg"
         atlassian_user = "your-email@email.email"
-        atlassian_domain = "your-atlassian-url.atlassian.net"
+        atlassian_domain = "https://your-atlassian-url.atlassian.net"
+        pagination_size = 50
         ```
 - Confluence (not working currently)
+    - What does it do?
     - Required Properties
         - atlassian_token
+            The token for your Atlassian instance.
+            Can be generated at https://id.atlassian.com/manage-profile/security/api-tokens
         - atlassian_user
+            Your username/email for the Atlassian instance.
         - atlassian_domain
+            The domain for the Atlassian instance.
+            Note it must begin with the scheme of the URL (most probably https://)
     - Example
         ```toml
-        [[scraper.confluence]]
+        [[scrapers.confluence]]
         atlassian_token = "abcdefg"
         atlassian_user = "your-email@email.email"
-        atlassian_domain = "your-atlassian-url.atlassian.net"
+        atlassian_domain = "https://your-atlassian-url.atlassian.net"
+        ```
+- Confluence (not working currently)
+    - What does it do?
+    - Required Properties
+        - github_token
+            TODO
+        - github_url
+            TODO
+    - Example
+        ```toml
+        [[scrapers.github]]
+        github_token = "hijklm"
+        github_url = "https://api.github.com/"
         ```
 
 ### Contributing

@@ -1,16 +1,23 @@
-# TOML Configuration for Prodex
+# TOML Configuration for Prod(ductivity Ind)ex
 
 ############
 # REQIURED #
 ############
 # Do not modify unless you installed without using the Makefile
-config_path = "/.config/prodex/"
 installation_path = "/etc/prodex/"
+
+###########
+# OPTIONS #
+###########
+# debug | info | warn | error
+log_level = "debug"
+# max cycles of noops before exiting
+max_noops = 10000
 
 ############
 # SCRAPERS #
 ############
-[scraper]
+[scrapers]
 
 # Definitions for all scrapers to run.
 #
@@ -19,17 +26,19 @@ installation_path = "/etc/prodex/"
 # available scraper.
 # 
 # # Jira scraper(s)
-# [[scraper.jira]]
-# atlassian_token = "abcdefg"
-# atlassian_user = "your-email@email.email"
-# atlassian_domain = "your-atlassian-url.atlassian.net"
-# 
-# # Confluence scraper(s)
-# [[scraper.confluence]]
-# atlassian_token = "abcdefg"
-# atlassian_user = "your-email@email.email"
-# atlassian_domain = "your-atlassian-url.atlassian.net"
-# 
-# # GitHub scraper(s)
-# [[scraper.github]]
-# github_token = "hijklm"
+[[scrapers.jira]]
+atlassian_token = "abcdefg"
+atlassian_user = "your-email@email.email"
+atlassian_domain = "https://your-atlassian-url.atlassian.net"
+pagination_size = 50
+
+# Confluence scraper(s)
+[[scrapers.confluence]]
+atlassian_token = "abcdefg"
+atlassian_user = "your-email@email.email"
+atlassian_domain = "https://your-atlassian-url.atlassian.net"
+
+# GitHub scraper(s)
+[[scrapers.github]]
+github_token = "hijklm"
+github_url = "https://api.github.com/"

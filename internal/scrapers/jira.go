@@ -9,7 +9,6 @@ import (
 	"github.com/Sam-Pewton/prodex/internal/scrapers/types"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -19,23 +18,27 @@ const jiraPaginationSize = 50
 
 // A jira scraper.
 type jiraScraper struct {
-	url     string
 	client  http.Client
 	headers map[string]string
+	config  map[string]any
 }
 
 // Create a new jira scraper.
-func NewJiraScraper(url string, headers map[string]string) *jiraScraper {
+func NewJiraScraper(config map[string]any) *jiraScraper {
+	headers := map[string]string{
+		"Accept": "application/json",
+	}
+
 	return &jiraScraper{
-		url,
 		http.Client{Timeout: time.Duration(5) * time.Second},
 		headers,
+		config,
 	}
 }
 
 // Build a basic GET request to execute with the client
 func (s *jiraScraper) buildGetRequest(url_suffix string) (*http.Request, error) {
-	req, err := http.NewRequest("GET", s.url+url_suffix, nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", s.config["atlassian_domain"], url_suffix), nil)
 	if err != nil {
 		logging.Error("error %s", err)
 	}
@@ -43,7 +46,7 @@ func (s *jiraScraper) buildGetRequest(url_suffix string) (*http.Request, error) 
 	for k, v := range s.headers {
 		req.Header.Add(k, v)
 	}
-	req.SetBasicAuth(os.Getenv("ATLASSIAN_USER"), os.Getenv("ATLASSIAN_TOKEN"))
+	req.SetBasicAuth(fmt.Sprintf("%s", s.config["atlassian_user"]), fmt.Sprintf("%s", s.config["atlassian_token"]))
 
 	return req, nil
 }
@@ -62,7 +65,7 @@ func (s *jiraScraper) executeRequest(request *http.Request) (*http.Response, err
 
 // Retrieve the account data for a Jira user.
 func (s *jiraScraper) retrieveAccountData() (*types.JiraUser, error) {
-	req, err := s.buildGetRequest(fmt.Sprintf("rest/api/3/user/search?query=%s", os.Getenv("ATLASSIAN_USER")))
+	req, err := s.buildGetRequest(fmt.Sprintf("rest/api/3/user/search?query=%s", s.config["atlassian_user"]))
 
 	if err != nil {
 		return nil, err
@@ -103,7 +106,9 @@ func (s *jiraScraper) processData(queryType string, accID string, c chan<- DBExe
 
 	for {
 		// Build the request
-		req, err := s.buildGetRequest(fmt.Sprintf("rest/api/3/search?jql=%s=%s&startAt=%d&maxResults=%d", queryType, accID, currentPos, jiraPaginationSize))
+		req, err := s.buildGetRequest(
+			fmt.Sprintf("rest/api/3/search?jql=%s=%s&startAt=%d&maxResults=%d", queryType, accID, currentPos, s.config["PaginationSize"]),
+		)
 		if err != nil {
 			logging.Error(fmt.Sprint(err))
 			return err
