@@ -1,0 +1,10 @@
+[Unit]
+Description=prodex
+Wants=prodex.timer
+
+[Service]
+Type=oneshot
+ExecStart=%h/etc/prodex/prodex
+
+[Install]
+WantedBy=multi-user.target
