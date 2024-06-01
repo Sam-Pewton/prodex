@@ -35,6 +35,7 @@ Any configuration changes made should be applied on the following run.
 #### Viewing the logs of the scraper
 ```bash
 journalctl --user-unit prodex
+```
 
 ### UI
 Currently, only a very basic web server is available on port `localhost:8642` that doesn't do a lot
