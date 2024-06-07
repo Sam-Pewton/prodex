@@ -14,8 +14,6 @@ import (
 	"time"
 )
 
-const jiraPaginationSize = 50
-
 // A jira scraper.
 type jiraScraper struct {
 	client  http.Client
@@ -38,7 +36,7 @@ func NewJiraScraper(config map[string]any) *jiraScraper {
 
 // Build a basic GET request to execute with the client
 func (s *jiraScraper) buildGetRequest(url_suffix string) (*http.Request, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", s.config["atlassian_domain"], url_suffix), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", s.config["AtlassianDomain"], url_suffix), nil)
 	if err != nil {
 		logging.Error("error %s", err)
 	}
@@ -46,7 +44,7 @@ func (s *jiraScraper) buildGetRequest(url_suffix string) (*http.Request, error) 
 	for k, v := range s.headers {
 		req.Header.Add(k, v)
 	}
-	req.SetBasicAuth(fmt.Sprintf("%s", s.config["atlassian_user"]), fmt.Sprintf("%s", s.config["atlassian_token"]))
+	req.SetBasicAuth(fmt.Sprintf("%s", s.config["AtlassianUser"]), fmt.Sprintf("%s", s.config["AtlassianToken"]))
 
 	return req, nil
 }
@@ -57,7 +55,7 @@ func (s *jiraScraper) executeRequest(request *http.Request) (*http.Response, err
 	if err != nil {
 		return nil, err
 	}
-	if resp.Status != "200 OK" {
+	if !strings.Contains(resp.Status, "200") {
 		return nil, errors.New("error: invalid status code received from meta endpoint. Cannot continue")
 	}
 	return resp, nil
@@ -65,7 +63,7 @@ func (s *jiraScraper) executeRequest(request *http.Request) (*http.Response, err
 
 // Retrieve the account data for a Jira user.
 func (s *jiraScraper) retrieveAccountData() (*types.JiraUser, error) {
-	req, err := s.buildGetRequest(fmt.Sprintf("rest/api/3/user/search?query=%s", s.config["atlassian_user"]))
+	req, err := s.buildGetRequest(fmt.Sprintf("rest/api/3/user/search?query=%s", s.config["AtlassianUser"]))
 
 	if err != nil {
 		return nil, err
@@ -101,7 +99,10 @@ func (s *jiraScraper) retrieveAccountData() (*types.JiraUser, error) {
 // Process jira data for a specific query.
 // queryType should be in `creator, assignee, reporter`
 func (s *jiraScraper) processData(queryType string, accID string, c chan<- DBExecution) error {
-	currentLen := jiraPaginationSize
+	currentLen, ok := s.config["PaginationSize"].(int)
+	if !ok {
+		logging.Error("pagination size needs to be an integer")
+	}
 	currentPos := 0
 
 	for {
@@ -148,7 +149,7 @@ func (s *jiraScraper) processData(queryType string, accID string, c chan<- DBExe
 		}
 
 		// We have exhausted all content pages, we are done.
-		if currentLen < jiraPaginationSize {
+		if currentLen < s.config["PaginationSize"].(int) {
 			break
 		}
 
