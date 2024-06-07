@@ -24,7 +24,12 @@ CREATE TABLE IF NOT EXISTS jira (
 );
 
 CREATE TABLE IF NOT EXISTS confluence (
-    id INTEGER NOT NULL PRIMARY KEY
+    id INTEGER NOT NULL PRIMARY KEY,
+    url TEXT,
+    title TEXT,
+    space TEXT NOT NULL,
+    created_date DATETIME NOT NULL,
+    page_owner TEXT NOT NULL -- ownerId maps to the author
 );
 
 CREATE TABLE IF NOT EXISTS github (

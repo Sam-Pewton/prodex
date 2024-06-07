@@ -27,6 +27,10 @@ func Error(msg string, args ...any) {
 	logger.Error(msg, args...)
 }
 
+func Warn(msg string, args ...any) {
+	logger.Warn(msg, args...)
+}
+
 func GetLogLevel(s string) (slog.Level, error) {
 	s = strings.ToLower(s)
 	switch s {

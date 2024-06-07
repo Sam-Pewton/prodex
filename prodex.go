@@ -15,7 +15,7 @@ import (
 var schema string
 
 func setUpConfig() (*sql.DB, error) {
-	err := config.LoadConfig()
+	err := config.LoadConfig("")
 	if err != nil {
 		return nil, err
 	}

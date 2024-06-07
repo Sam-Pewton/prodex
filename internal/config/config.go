@@ -17,8 +17,13 @@ type ScraperConfig = map[string]any
 
 var ProdexConf Config
 
-func LoadConfig() error {
-	_, err := toml.DecodeFile("dev/prodex.toml", &ProdexConf)
+func LoadConfig(conf string) error {
+	var err error
+	if conf == "" {
+		_, err = toml.DecodeFile("dev/prodex.toml", &ProdexConf)
+	} else {
+		_, err = toml.Decode(conf, &ProdexConf)
+	}
 	if err != nil {
 		fmt.Printf("%s", err)
 		return err

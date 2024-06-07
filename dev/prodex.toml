@@ -26,19 +26,20 @@ max_noops = 10000
 # available scraper.
 # 
 # # Jira scraper(s)
-[[scrapers.jira]]
-atlassian_token = "abcdefg"
-atlassian_user = "your-email@email.email"
-atlassian_domain = "https://your-atlassian-url.atlassian.net"
-pagination_size = 50
+# [[scrapers.jira]]
+# atlassian_token = "abcdefg"
+# atlassian_user = "your-email@email.email"
+# atlassian_domain = "https://your-atlassian-url.atlassian.net"
+# pagination_size = 50
 
 # Confluence scraper(s)
-[[scrapers.confluence]]
-atlassian_token = "abcdefg"
-atlassian_user = "your-email@email.email"
-atlassian_domain = "https://your-atlassian-url.atlassian.net"
+# [[scrapers.confluence]]
+# atlassian_token = "abcdefg"
+# atlassian_user = "your-email@email.email"
+# atlassian_domain = "https://your-atlassian-url.atlassian.net"
+# spaces = ["TEST"]
 
 # GitHub scraper(s)
-[[scrapers.github]]
-github_token = "hijklm"
-github_url = "https://api.github.com/"
+# [[scrapers.github]]
+# github_token = "hijklm"
+# github_url = "https://api.github.com/"

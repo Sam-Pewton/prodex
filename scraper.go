@@ -59,7 +59,7 @@ func runScraper(db *sql.DB) {
 		}
 
 		if noop >= config.ProdexConf.MaxNoops {
-			logger.Error(fmt.Sprintf("scrapers stopped without finishing. expected %d, but only %d finished succesfully", totalScrapers, totalDone))
+			logging.Error(fmt.Sprintf("scrapers stopped without finishing. expected %d, but only %d finished succesfully", totalScrapers, totalDone))
 		}
 	}
 }
